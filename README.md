@@ -79,30 +79,115 @@ PocketAI: 好的，正在查询 AAPL...
     price: 175.43,
     change: 2.15,
     changePercent: 1.24,
-    previousClose: 173.28,
-    open: 173.50,
-    dayHigh: 176.00,
-    dayLow: 173.00,
-    volume: 52000000,
-    marketCap: 2730000000000,
-    pe: 28.5,
-    eps: 6.15,
-    dividend: 0.96,
-    yield: 0.0055,
-    currency: 'USD',
-    exchange: 'NMS',
-    marketState: 'REGULAR',
-    timestamp: '2026-03-09T12:00:00.000Z'
+    // ... 更多数据
   },
   message: '成功获取 AAPL 股价数据'
 }
 ```
 
+---
+
+### getTechnicalIndicators(symbol, period, indicators)
+
+获取技术指标分析（NEW! 🎯）
+
+**参数：**
+- `symbol` (string): 股票代码
+- `period` (string): 时间周期，可选值：
+  - '1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max'
+- `indicators` (Array): 技术指标列表，可选：
+  - 'MA' - 移动平均线
+  - 'EMA' - 指数移动平均线
+  - 'RSI' - 相对强弱指数
+  - 'MACD' - 平滑异同移动平均线
+  - 'BOLL' - 布林带
+  - 'KDJ' - 随机指标
+  - 'Volume' - 成交量分析
+
+**返回：**
+```javascript
+{
+  success: true,
+  data: {
+    symbol: 'AAPL',
+    period: '1mo',
+    timestamp: '2026-03-09T14:00:00.000Z',
+    indicators: {
+      MA: {
+        MA5: { value: 174.50, period: 5, trend: 'BULLISH' },
+        MA10: { value: 172.30, period: 10, trend: 'BULLISH' },
+        MA20: { value: 170.80, period: 20, trend: 'BULLISH' },
+        MA50: { value: 168.20, period: 50, trend: 'BULLISH' },
+        MA200: { value: 165.50, period: 200, trend: 'BULLISH' }
+      },
+      RSI: {
+        RSI14: 65.50,
+        signal: 'BULLISH'
+      },
+      MACD: {
+        macdLine: 2.35,
+        signalLine: 1.80,
+        histogram: 0.55,
+        trend: 'BULLISH',
+        crossover: 'GOLDEN'
+      },
+      BOLL: {
+        upper: 180.50,
+        middle: 175.00,
+        lower: 169.50,
+        bandwidth: 6.29,
+        percentB: 55.00,
+        position: 'UPPER_HALF'
+      },
+      KDJ: {
+        k: 75.20,
+        d: 68.50,
+        j: 88.60,
+        signal: 'BULLISH',
+        crossover: 'GOLDEN'
+      }
+    },
+    analysis: {
+      signal: 'BUY',
+      confidence: 75,
+      bullish: 6,
+      bearish: 2,
+      neutral: 0,
+      details: [
+        'MA5: 看涨',
+        'RSI: 看涨',
+        'MACD: 看涨',
+        'MACD: 金叉',
+        'KDJ: 看涨信号'
+      ],
+      recommendation: '建议买入 (置信度：75%) - 多数技术指标看涨'
+    }
+  },
+  message: '成功获取 AAPL 技术指标分析'
+}
+```
+
 **示例：**
 ```javascript
-const quote = await yahooclaw.getQuote('AAPL');
-console.log(`AAPL: $${quote.data.price}`);
+// 获取完整技术分析
+const tech = await yahooclaw.getTechnicalIndicators('AAPL', '1mo', [
+  'MA', 'RSI', 'MACD', 'BOLL', 'KDJ'
+]);
+
+console.log(`信号：${tech.data.analysis.signal}`);
+console.log(`置信度：${tech.data.analysis.confidence}%`);
+console.log(`建议：${tech.data.analysis.recommendation}`);
+
+// 只获取 RSI 和 MACD
+const rsiMacd = await yahooclaw.getTechnicalIndicators('TSLA', '3mo', ['RSI', 'MACD']);
 ```
+
+**综合信号说明：**
+- `STRONG_BUY` - 强烈买入（置信度≥70%）
+- `BUY` - 建议买入（置信度 60-69%）
+- `NEUTRAL` - 观望（置信度 40-59%）
+- `SELL` - 建议卖出（置信度 60-69%）
+- `STRONG_SELL` - 强烈卖出（置信度≥70%）
 
 ---
 
