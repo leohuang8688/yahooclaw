@@ -273,6 +273,149 @@ history.data.quotes.forEach(q => {
 
 ---
 
+### getNews(symbol, options)
+
+获取新闻聚合（支持多源 + 情感分析）🎯 NEW!
+
+**参数：**
+- `symbol` (string): 股票代码
+- `options` (Object): 选项
+  - `limit` (number): 新闻数量限制（默认 10）
+  - `sources` (Array): 新闻源列表
+    - 'yahoo' - Yahoo Finance
+    - 'google' - Google News
+    - 'seekingalpha' - Seeking Alpha
+  - `sentiment` (boolean): 是否进行情感分析（默认 true）
+
+**返回：**
+```javascript
+{
+  success: true,
+  data: {
+    symbol: 'AAPL',
+    news: [
+      {
+        title: 'Apple Beats Q1 Earnings Expectations',
+        summary: 'Apple Inc reported better-than-expected...',
+        source: 'yahoo',
+        publisher: 'Yahoo Finance',
+        link: 'https://finance.yahoo.com/news/...',
+        publishedAt: '2026-03-09T10:00:00.000Z',
+        thumbnail: 'https://...',
+        sentiment: {
+          label: 'POSITIVE',
+          score: 0.85,
+          positive: 5,
+          negative: 1
+        }
+      },
+      // ...
+    ],
+    count: 10,
+    sources: ['yahoo'],
+    sentimentStats: {
+      positive: 6,
+      negative: 2,
+      neutral: 2,
+      total: 10
+    },
+    overallSentiment: 'BULLISH',
+    timestamp: '2026-03-09T12:00:00.000Z'
+  },
+  message: '成功获取 AAPL 新闻，共 10 条'
+}
+```
+
+**情感标签说明：**
+- `POSITIVE` - 利好（情感分≥0.6）
+- `SLIGHTLY_POSITIVE` - 轻微利好（0.5-0.6）
+- `NEUTRAL` - 中性（0.4-0.5）
+- `SLIGHTLY_NEGATIVE` - 轻微利空（0.4-0.5）
+- `NEGATIVE` - 利空（≤0.4）
+
+**整体情感倾向：**
+- `BULLISH` - 看涨（利好新闻≥60%）
+- `SLIGHTLY_BULLISH` - 轻微看涨（利好 40-60%）
+- `NEUTRAL` - 中性
+- `SLIGHTLY_BEARISH` - 轻微看跌（利空 40-60%）
+- `BEARISH` - 看跌（利空≥60%）
+
+**示例：**
+```javascript
+// 获取 Yahoo Finance 新闻 + 情感分析
+const news = await yahooclaw.getNews('AAPL', {
+  limit: 10,
+  sources: ['yahoo'],
+  sentiment: true
+});
+
+console.log(`整体情感：${news.data.overallSentiment}`);
+console.log(`利好：${news.data.sentimentStats.positive}`);
+console.log(`利空：${news.data.sentimentStats.negative}`);
+
+// 多源新闻
+const multiNews = await yahooclaw.getNews('TSLA', {
+  limit: 20,
+  sources: ['yahoo', 'google', 'seekingalpha'],
+  sentiment: true
+});
+```
+
+---
+
+### getNewsTopics(symbol)
+
+获取热门新闻主题 🎯 NEW!
+
+**参数：**
+- `symbol` (string): 股票代码
+
+**返回：**
+```javascript
+{
+  success: true,
+  data: {
+    symbol: 'AAPL',
+    topics: [
+      {
+        topic: 'earnings',
+        count: 5,
+        articles: [
+          {
+            title: 'Apple Q1 Earnings Beat...',
+            link: 'https://...',
+            publishedAt: '2026-03-09T10:00:00.000Z'
+          },
+          // ...
+        ]
+      },
+      {
+        topic: 'AI',
+        count: 3,
+        articles: [...]
+      },
+      // ...
+    ],
+    timestamp: '2026-03-09T12:00:00.000Z'
+  },
+  message: '成功获取 AAPL 热门新闻主题'
+}
+```
+
+**示例：**
+```javascript
+const topics = await yahooclaw.getNewsTopics('AAPL');
+
+topics.data.topics.forEach(topic => {
+  console.log(`${topic.topic}: ${topic.count} 篇新闻`);
+  topic.articles.forEach(article => {
+    console.log(`  - ${article.title}`);
+  });
+});
+```
+
+---
+
 ### getDividends(symbol)
 
 获取股息分红历史

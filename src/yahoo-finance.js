@@ -726,6 +726,310 @@ class YahooClaw {
   }
 
   /**
+   * 获取新闻聚合（支持多源）
+   * @param {string} symbol - 股票代码
+   * @param {Object} options - 选项
+   * @param {number} options.limit - 新闻数量限制（默认 10）
+   * @param {Array<string>} options.sources - 新闻源列表（yahoo, google, seekingalpha）
+   * @param {string} options.sentiment - 情感分析（true/false）
+   * @returns {Promise<Object>} 新闻数据
+   */
+  async getNews(symbol, options = {}) {
+    try {
+      const {
+        limit = 10,
+        sources = ['yahoo'],
+        sentiment = true
+      } = options;
+
+      const allNews = [];
+
+      // 获取 Yahoo Finance 新闻
+      if (sources.includes('yahoo')) {
+        const yahooNews = await this._getYahooNews(symbol, limit);
+        allNews.push(...yahooNews);
+      }
+
+      // 获取 Google News 新闻
+      if (sources.includes('google')) {
+        const googleNews = await this._getGoogleNews(symbol, limit);
+        allNews.push(...googleNews);
+      }
+
+      // 获取 Seeking Alpha 新闻
+      if (sources.includes('seekingalpha')) {
+        const saNews = await this._getSeekingAlphaNews(symbol, limit);
+        allNews.push(...saNews);
+      }
+
+      // 情感分析
+      if (sentiment) {
+        for (let news of allNews) {
+          news.sentiment = this._analyzeSentiment(news.title + ' ' + (news.summary || ''));
+        }
+      }
+
+      // 按时间排序
+      allNews.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+      // 限制数量
+      const limitedNews = allNews.slice(0, limit);
+
+      // 统计情感分布
+      const sentimentStats = this._getSentimentStats(limitedNews);
+
+      return {
+        success: true,
+        data: {
+          symbol: symbol,
+          news: limitedNews,
+          count: limitedNews.length,
+          sources: sources,
+          sentimentStats: sentimentStats,
+          overallSentiment: this._getOverallSentiment(sentimentStats),
+          timestamp: new Date().toISOString()
+        },
+        message: `成功获取 ${symbol} 新闻，共 ${limitedNews.length} 条`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        message: `获取 ${symbol} 新闻失败：${error.message}`,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 获取 Yahoo Finance 新闻
+   * @private
+   */
+  async _getYahooNews(symbol, limit = 10) {
+    try {
+      const news = await yahooFinance.search(symbol, { newsCount: limit });
+      
+      return news.news.map(n => ({
+        title: n.title,
+        summary: n.summary,
+        source: 'yahoo',
+        publisher: n.publisher,
+        link: n.link,
+        publishedAt: n.providerPublishTime ? new Date(n.providerPublishTime * 1000).toISOString() : new Date().toISOString(),
+        thumbnail: n.thumbnail ? n.thumbnail.resolutions[0]?.url : null,
+        type: n.type,
+        uuid: n.uuid
+      }));
+    } catch (error) {
+      console.error(`Yahoo News error for ${symbol}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * 获取 Google News 新闻
+   * @private
+   */
+  async _getGoogleNews(symbol, limit = 10) {
+    try {
+      // 使用 RSS  feed 或搜索 API（这里简化处理）
+      // 实际项目中可以使用 google-news-api 或类似服务
+      const query = encodeURIComponent(`${symbol} stock news`);
+      const googleNewsUrl = `https://news.google.com/rss/search?q=${query}&hl=en-US&gl=US&ceid=US:en`;
+      
+      // 注意：实际使用中需要解析 RSS feed
+      // 这里返回空数组，实际项目需要实现 RSS 解析
+      return [];
+    } catch (error) {
+      console.error(`Google News error for ${symbol}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * 获取 Seeking Alpha 新闻
+   * @private
+   */
+  async _getSeekingAlphaNews(symbol, limit = 10) {
+    try {
+      // Seeking Alpha 需要 API key 或网页爬取
+      // 这里返回空数组，实际项目需要实现
+      return [];
+    } catch (error) {
+      console.error(`Seeking Alpha News error for ${symbol}:`, error.message);
+      return [];
+    }
+  }
+
+  /**
+   * 情感分析（简化版）
+   * @private
+   */
+  _analyzeSentiment(text) {
+    const positiveWords = [
+      'beat', 'surge', 'soar', 'jump', 'rise', 'gain', 'growth', 'profit', 
+      'bullish', 'upgrade', 'outperform', 'buy', 'strong', 'record', 'high',
+      'positive', 'optimistic', 'exceed', 'outlook', 'rally', 'boom'
+    ];
+    
+    const negativeWords = [
+      'miss', 'drop', 'fall', 'decline', 'loss', 'bearish', 'downgrade',
+      'sell', 'weak', 'low', 'negative', 'pessimistic', 'fail', 'crash',
+      'plunge', 'slump', 'warning', 'risk', 'concern', 'lawsuit', 'investigation'
+    ];
+
+    const textLower = text.toLowerCase();
+    
+    let positiveCount = 0;
+    let negativeCount = 0;
+
+    positiveWords.forEach(word => {
+      if (textLower.includes(word)) positiveCount++;
+    });
+
+    negativeWords.forEach(word => {
+      if (textLower.includes(word)) negativeCount++;
+    });
+
+    const total = positiveCount + negativeCount;
+    
+    if (total === 0) {
+      return {
+        label: 'NEUTRAL',
+        score: 0.5,
+        positive: 0,
+        negative: 0
+      };
+    }
+
+    const score = positiveCount / total;
+    let label = 'NEUTRAL';
+    
+    if (score >= 0.6) label = 'POSITIVE';
+    else if (score <= 0.4) label = 'NEGATIVE';
+
+    return {
+      label: label,
+      score: parseFloat(score.toFixed(2)),
+      positive: positiveCount,
+      negative: negativeCount
+    };
+  }
+
+  /**
+   * 获取情感统计
+   * @private
+   */
+  _getSentimentStats(news) {
+    const stats = {
+      positive: 0,
+      negative: 0,
+      neutral: 0,
+      total: news.length
+    };
+
+    news.forEach(n => {
+      if (n.sentiment) {
+        if (n.sentiment.label === 'POSITIVE') stats.positive++;
+        else if (n.sentiment.label === 'NEGATIVE') stats.negative++;
+        else stats.neutral++;
+      }
+    });
+
+    return stats;
+  }
+
+  /**
+   * 获取整体情感倾向
+   * @private
+   */
+  _getOverallSentiment(stats) {
+    if (stats.total === 0) return 'NEUTRAL';
+    
+    const positiveRatio = stats.positive / stats.total;
+    const negativeRatio = stats.negative / stats.total;
+    
+    if (positiveRatio >= 0.6) return 'BULLISH';
+    if (negativeRatio >= 0.6) return 'BEARISH';
+    if (positiveRatio >= 0.4) return 'SLIGHTLY_BULLISH';
+    if (negativeRatio >= 0.4) return 'SLIGHTLY_BEARISH';
+    return 'NEUTRAL';
+  }
+
+  /**
+   * 获取热门新闻主题
+   * @param {string} symbol - 股票代码
+   * @returns {Promise<Object>} 热门主题
+   */
+  async getNewsTopics(symbol) {
+    try {
+      const newsResult = await this.getNews(symbol, { limit: 20, sentiment: false });
+      
+      if (!newsResult.success) {
+        return newsResult;
+      }
+
+      const news = newsResult.data.news;
+      const topics = {};
+
+      // 提取关键词
+      const keywords = [
+        'earnings', 'revenue', 'profit', 'dividend', 'stock split',
+        'acquisition', 'merger', 'layoff', 'CEO', 'product',
+        'lawsuit', 'investigation', 'upgrade', 'downgrade', 'price target',
+        'AI', 'electric vehicle', 'semiconductor', 'cloud', '5G'
+      ];
+
+      news.forEach(n => {
+        const text = (n.title + ' ' + (n.summary || '')).toLowerCase();
+        
+        keywords.forEach(keyword => {
+          if (text.includes(keyword)) {
+            if (!topics[keyword]) {
+              topics[keyword] = {
+                count: 0,
+                articles: []
+              };
+            }
+            topics[keyword].count++;
+            topics[keyword].articles.push({
+              title: n.title,
+              link: n.link,
+              publishedAt: n.publishedAt
+            });
+          }
+        });
+      });
+
+      // 按数量排序
+      const sortedTopics = Object.entries(topics)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 10);
+
+      return {
+        success: true,
+        data: {
+          symbol: symbol,
+          topics: sortedTopics.map(([topic, data]) => ({
+            topic: topic,
+            count: data.count,
+            articles: data.articles.slice(0, 3) // 每个主题只显示 3 篇
+          })),
+          timestamp: new Date().toISOString()
+        },
+        message: `成功获取 ${symbol} 热门新闻主题`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        message: `获取 ${symbol} 新闻主题失败：${error.message}`,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * 获取股息分红历史
    * @param {string} symbol - 股票代码
    * @returns {Promise<Object>} 股息数据
