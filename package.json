@@ -25,6 +25,7 @@
     "url": "https://github.com/leohuang8688/yahooclaw.git"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "yahoo-finance2": "^2.11.3"
   },
   "devDependencies": {
