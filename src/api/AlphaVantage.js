@@ -88,20 +88,35 @@ export class AlphaVantageAPI {
       const response = await fetch(url);
       const data = await response.json();
 
+      // 调试输出
+      console.log(`[AlphaVantage] 请求 ${symbol} 历史数据...`);
+      console.log(`[AlphaVantage] 返回数据结构:`, Object.keys(data));
+
       if (data['Time Series (Daily)']) {
         const timeSeries = data['Time Series (Daily)'];
-        const quotes = Object.entries(timeSeries).map(([date, values]) => ({
-          date: date,
-          open: parseFloat(values['1. open']),
-          high: parseFloat(values['2. high']),
-          low: parseFloat(values['3. low']),
-          close: parseFloat(values['4. close']),
-          volume: parseInt(values['5. volume'])
-        }));
+        
+        // 更健壮的数据解析
+        const quotes = Object.entries(timeSeries).map(([date, values]) => {
+          try {
+            return {
+              date: date,
+              open: parseFloat(values['1. open'] || '0'),
+              high: parseFloat(values['2. high'] || '0'),
+              low: parseFloat(values['3. low'] || '0'),
+              close: parseFloat(values['4. close'] || '0'),
+              volume: parseInt(values['5. volume'] || '0')
+            };
+          } catch (error) {
+            console.warn(`[AlphaVantage] 解析 ${date} 数据失败:`, error.message);
+            return null;
+          }
+        }).filter(q => q !== null && q.close > 0); // 过滤无效数据
 
         // 根据周期限制返回数据量
         const limit = this._getLimit(period);
         const limitedQuotes = quotes.slice(0, limit);
+
+        console.log(`[AlphaVantage] ✅ 成功获取 ${symbol} ${limitedQuotes.length} 条记录`);
 
         return {
           success: true,
@@ -115,6 +130,7 @@ export class AlphaVantageAPI {
           message: `成功获取 ${symbol} 历史数据，共 ${limitedQuotes.length} 条记录 (Alpha Vantage)`
         };
       } else if (data['Note']) {
+        console.warn(`[AlphaVantage] ⚠️ 限流：${data['Note']}`);
         return {
           success: false,
           source: 'AlphaVantage',
@@ -122,16 +138,37 @@ export class AlphaVantageAPI {
           message: `Alpha Vantage API 限流：${data['Note']}`,
           error: 'RATE_LIMIT'
         };
-      } else {
+      } else if (data['Information']) {
+        console.warn(`[AlphaVantage] ⚠️ API 信息：${data['Information']}`);
         return {
           success: false,
           source: 'AlphaVantage',
           data: null,
-          message: `获取 ${symbol} 历史数据失败：数据格式错误`,
-          error: 'INVALID_DATA'
+          message: `API 限制：${data['Information']}`,
+          error: 'API_LIMIT'
+        };
+      } else if (data['Error Message']) {
+        console.error(`[AlphaVantage] ❌ 错误：${data['Error Message']}`);
+        return {
+          success: false,
+          source: 'AlphaVantage',
+          data: null,
+          message: `API 错误：${data['Error Message']}`,
+          error: 'API_ERROR'
+        };
+      } else {
+        console.error(`[AlphaVantage] ❌ 未知数据格式:`, JSON.stringify(data, null, 2));
+        return {
+          success: false,
+          source: 'AlphaVantage',
+          data: null,
+          message: `获取 ${symbol} 历史数据失败：未知数据格式`,
+          error: 'INVALID_DATA',
+          debug: data
         };
       }
     } catch (error) {
+      console.error(`[AlphaVantage] ❌ 异常：${error.message}`);
       return {
         success: false,
         source: 'AlphaVantage',

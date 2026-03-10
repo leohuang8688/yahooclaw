@@ -1,6 +1,11 @@
-# Dependencies
+# Node modules
 node_modules/
 package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
 
 # Build output
 dist/
@@ -12,11 +17,6 @@ build/
 *.swp
 *.swo
 *~
-
-# Environment
-.env
-.env.local
-.env.*.local
 
 # Logs
 logs/
@@ -37,3 +37,9 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# Test scripts (keep demo files)
+test-*.js
+debug-*.js
+query-*.js
+analyze-*.js
