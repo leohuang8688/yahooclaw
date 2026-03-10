@@ -1,6 +1,6 @@
 {
   "name": "yahooclaw",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "description": "Yahoo Finance API integration for OpenClaw - Real-time stock quotes, financial data, and market analysis",
   "main": "src/yahoo-finance.js",
   "type": "module",
