@@ -2,7 +2,7 @@
 
 > Empower OpenClaw with real-time stock quotes, financial data, and market analysis
 
-[![npm version](https://img.shields.io/npm/v/yahooclaw.svg)](https://www.npmjs.com/package/yahooclaw)
+[![Version](https://img.shields.io/github/v/tag/leohuang8688/yahooclaw?label=version&color=green)](https://github.com/leohuang8688/yahooclaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue)](https://github.com/openclaw/openclaw)
 
@@ -12,15 +12,17 @@
 
 ## 📖 Introduction
 
-**YahooClaw** is a Yahoo Finance API integration skill designed for OpenClaw, enabling you to query:
+**YahooClaw v0.0.3** is a production-ready Yahoo Finance API integration skill for OpenClaw, featuring:
 
 - 📈 **Real-time Quotes** - US, HK, A-shares and global markets
-- 📊 **Historical Data** - Multiple time periods supported
+- 📊 **Historical Data** - Multiple time periods (1d to max)
 - 💰 **Dividends** - Complete dividend history
 - 📉 **Financial Statements** - Balance sheet, income statement, cash flow
 - 🔍 **Stock Search** - Quick stock code lookup
 - 📰 **News Aggregation** - Multi-source news with sentiment analysis
-- 📊 **Technical Indicators** - 7 major indicators (MA, RSI, MACD, etc.)
+- 📊 **Technical Indicators** - 7 major indicators (MA, RSI, MACD, BOLL, KDJ)
+- 🔄 **Auto Failover** - Automatic switch to backup API on rate limits
+- 💾 **Smart Caching** - 5-minute TTL for 30x speed improvement
 
 ---
 
@@ -33,7 +35,21 @@ cd /root/.openclaw/workspace/skills/yahooclaw
 npm install
 ```
 
-### 2. Use in OpenClaw
+### 2. Configure Environment (Optional)
+
+Create `.env` file for backup API:
+
+```bash
+# Alpha Vantage API Key (500 calls/day free)
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+
+# API Manager Settings
+API_TIMEOUT=10000          # Request timeout (ms)
+API_CACHE_TTL=300000       # Cache duration (5 min)
+API_CACHE_ENABLED=true     # Enable caching
+```
+
+### 3. Use in OpenClaw
 
 ```javascript
 // Import in your OpenClaw agent
@@ -47,18 +63,22 @@ console.log(`AAPL: $${aapl.data.price}`);
 const tsla = await yahooclaw.getHistory('TSLA', '1mo');
 console.log(tsla.data.quotes);
 
-// Query company info
-const msft = await yahooclaw.getCompanyInfo('MSFT');
-console.log(msft.data.marketCap);
+// Technical analysis
+const nvda = await yahooclaw.getTechnicalIndicators('NVDA', '1mo', ['MA', 'RSI', 'MACD']);
+console.log(nvda.data.analysis.recommendation);
+
+// News with sentiment
+const msft = await yahooclaw.getNews('MSFT', { limit: 5, sentiment: true });
+console.log(msft.data.overallSentiment);
 ```
 
-### 3. Use via OpenClaw Conversation
+### 4. Use via OpenClaw Conversation
 
 ```
 User: Query Apple stock price
 PocketAI: Sure, querying AAPL...
-        Apple Inc. (AAPL) current price: $175.43
-        Change: +$2.15 (+1.24%)
+        Apple Inc. (AAPL) current price: $260.83
+        Change: +$0.95 (+0.37%) 📈
         Market Cap: $2.73T
 ```
 
@@ -347,17 +367,41 @@ await yahooclaw.getQuote('9988.HK');    // Alibaba
 
 ## 📝 Changelog
 
-### v0.1.0 (2026-03-10)
+### v0.0.3 (2026-03-11) 🆕
+
+**Enhancements:**
+- ✅ Enhanced error handling with detailed logging
+- ✅ Robust data parsing with null-safe extraction
+- ✅ Better error classification (rate limit, API limit, data errors)
+- ✅ Improved API failover logic
+- ✅ Added debug logging for troubleshooting
+- ✅ Graceful degradation on API limits
+
+**Bug Fixes:**
+- ✅ Fixed historical data parsing errors
+- ✅ Better rate limit handling
+- ✅ Improved error messages for users
+
+**Documentation:**
+- ✅ Updated usage examples
+- ✅ Added troubleshooting guide
+- ✅ API limit warnings
+
+### v0.0.2 (2026-03-11)
+
+- ✅ Modular architecture (Quote, History, Technical, News modules)
+- ✅ Alpha Vantage backup API integration
+- ✅ API Manager with automatic failover
+- ✅ Smart caching (5 min TTL)
+- ✅ Comprehensive test suite
+- ✅ English & Chinese documentation
+
+### v0.0.1 (2026-03-10)
+
 - ✅ Initial release
+- ✅ Basic Yahoo Finance integration
 - ✅ Real-time quotes
-- ✅ Historical data (11 periods)
-- ✅ Technical indicators (7 indicators)
-- ✅ News aggregation + sentiment analysis
-- ✅ Company info + financials
-- ✅ Dividend history
-- ✅ Stock search
-- ✅ OpenClaw integration
-- ✅ Modular architecture
+- ✅ Historical data
 
 ---
 
@@ -392,11 +436,12 @@ MIT License - See [LICENSE](LICENSE) file
 
 - [Yahoo Finance](https://finance.yahoo.com/) - Financial data provider
 - [yahoo-finance2](https://github.com/gadicc/node-yahoo-finance2) - Node.js client
+- [Alpha Vantage](https://www.alphavantage.co/) - Backup API provider
 - [OpenClaw](https://github.com/openclaw/openclaw) - AI Agent framework
 
 ---
 
-## 📞 Contact
+## 📞 Support
 
 For issues or suggestions:
 

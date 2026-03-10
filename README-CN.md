@@ -2,7 +2,7 @@
 
 > 让 OpenClaw 能直接查询股票行情、财务数据和市场分析
 
-[![npm version](https://img.shields.io/npm/v/yahooclaw.svg)](https://www.npmjs.com/package/yahooclaw)
+[![版本](https://img.shields.io/github/v/tag/leohuang8688/yahooclaw?label=version&color=green)](https://github.com/leohuang8688/yahooclaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue)](https://github.com/openclaw/openclaw)
 
@@ -12,15 +12,17 @@
 
 ## 📖 简介
 
-**YahooClaw** 是一个为 OpenClaw 设计的 Yahoo Finance API 集成技能，让你可以直接通过 OpenClaw agent 查询：
+**YahooClaw v0.0.3** 是一个为 OpenClaw 设计的生产级 Yahoo Finance API 集成技能，特性包括：
 
 - 📈 **实时股价** - 美股、港股、A 股等全球市场
-- 📊 **历史数据** - 支持多种时间周期
+- 📊 **历史数据** - 支持多种时间周期（1 天到全部）
 - 💰 **股息分红** - 完整的分红历史
 - 📉 **财务报表** - 资产负债表、利润表、现金流
 - 🔍 **股票搜索** - 快速查找股票代码
 - 📰 **新闻聚合** - 多源新闻 + 情感分析
-- 📊 **技术指标** - 7 大主流技术指标
+- 📊 **技术指标** - 7 大主流技术指标（MA, RSI, MACD, BOLL, KDJ）
+- 🔄 **自动故障转移** - 限流时自动切换备用 API
+- 💾 **智能缓存** - 5 分钟 TTL，速度提升 30 倍
 
 ---
 
@@ -33,7 +35,21 @@ cd /root/.openclaw/workspace/skills/yahooclaw
 npm install
 ```
 
-### 2. 在 OpenClaw 中使用
+### 2. 配置环境变量（可选）
+
+创建 `.env` 文件配置备用 API：
+
+```bash
+# Alpha Vantage API Key（免费 500 次/天）
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+
+# API 管理器配置
+API_TIMEOUT=10000          # 请求超时（毫秒）
+API_CACHE_TTL=300000       # 缓存有效期（5 分钟）
+API_CACHE_ENABLED=true     # 启用缓存
+```
+
+### 3. 在 OpenClaw 中使用
 
 ```javascript
 // 在你的 OpenClaw agent 中导入
@@ -47,18 +63,22 @@ console.log(`AAPL: $${aapl.data.price}`);
 const tsla = await yahooclaw.getHistory('TSLA', '1mo');
 console.log(tsla.data.quotes);
 
-// 查询公司信息
-const msft = await yahooclaw.getCompanyInfo('MSFT');
-console.log(msft.data.marketCap);
+// 技术指标分析
+const nvda = await yahooclaw.getTechnicalIndicators('NVDA', '1mo', ['MA', 'RSI', 'MACD']);
+console.log(nvda.data.analysis.recommendation);
+
+// 新闻聚合 + 情感分析
+const msft = await yahooclaw.getNews('MSFT', { limit: 5, sentiment: true });
+console.log(msft.data.overallSentiment);
 ```
 
-### 3. 通过 OpenClaw 对话使用
+### 4. 通过 OpenClaw 对话使用
 
 ```
 用户：查询苹果股价
 PocketAI: 好的，正在查询 AAPL...
-        苹果公司 (AAPL) 当前股价：$175.43
-        涨跌：+$2.15 (+1.24%)
+        苹果公司 (AAPL) 当前股价：$260.83
+        涨跌：+$0.95 (+0.37%) 📈
         市值：2.73 万亿美元
 ```
 
@@ -347,17 +367,41 @@ await yahooclaw.getQuote('9988.HK');    // 阿里巴巴
 
 ## 📝 更新日志
 
-### v0.1.0 (2026-03-10)
+### v0.0.3 (2026-03-11) 🆕
+
+**功能增强：**
+- ✅ 增强的错误处理，详细日志输出
+- ✅ 健壮的数据解析，空值安全提取
+- ✅ 更好的错误分类（限流、API 限制、数据错误）
+- ✅ 改进的 API 故障转移逻辑
+- ✅ 添加调试日志，便于故障排除
+- ✅ API 限制时的优雅降级
+
+**Bug 修复：**
+- ✅ 修复历史数据解析错误
+- ✅ 更好的限流处理
+- ✅ 更友好的用户错误提示
+
+**文档更新：**
+- ✅ 更新使用示例
+- ✅ 添加故障排除指南
+- ✅ API 限制警告提示
+
+### v0.0.2 (2026-03-11)
+
+- ✅ 模块化架构（Quote, History, Technical, News 模块）
+- ✅ Alpha Vantage 备用 API 集成
+- ✅ API Manager 自动故障转移
+- ✅ 智能缓存（5 分钟 TTL）
+- ✅ 完整测试套件
+- ✅ 中英文档
+
+### v0.0.1 (2026-03-10)
+
 - ✅ 初始版本发布
+- ✅ 基础 Yahoo Finance 集成
 - ✅ 实时股价查询
-- ✅ 历史数据查询（11 种周期）
-- ✅ 技术指标分析（7 大指标）
-- ✅ 新闻聚合 + 情感分析
-- ✅ 公司信息查询
-- ✅ 股息分红查询
-- ✅ 股票搜索功能
-- ✅ OpenClaw 集成
-- ✅ 模块化架构重构
+- ✅ 历史数据查询
 
 ---
 
@@ -392,11 +436,12 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 - [Yahoo Finance](https://finance.yahoo.com/) - 提供金融数据
 - [yahoo-finance2](https://github.com/gadicc/node-yahoo-finance2) - Node.js 客户端
+- [Alpha Vantage](https://www.alphavantage.co/) - 备用 API 提供商
 - [OpenClaw](https://github.com/openclaw/openclaw) - AI Agent 框架
 
 ---
 
-## 📞 联系方式
+## 📞 支持
 
 如有问题或建议，欢迎通过以下方式联系：
 
