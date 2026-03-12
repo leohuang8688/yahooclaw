@@ -4,7 +4,13 @@
  * 免费额度：500 次/天
  */
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY || 'demo';
+// API Key 必须从环境变量获取，不能硬编码
+const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
+
+if (!API_KEY) {
+  console.warn('⚠️  ALPHA_VANTAGE_API_KEY not set. Please set environment variable.');
+}
+
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 export class AlphaVantageAPI {
