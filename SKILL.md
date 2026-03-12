@@ -15,158 +15,158 @@ description: Yahoo Finance API integration for OpenClaw. Use when users ask for 
 - ✅ No user data persistence
 - ✅ Open source and auditable
 
-## 功能说明
+## Overview
 
-yahooclaw 是一个集成 Yahoo Finance API 的 OpenClaw 技能，提供实时股票数据查询、财务分析、历史股价等功能。
+YahooClaw is an OpenClaw skill that integrates Yahoo Finance API, providing real-time stock data queries, financial analysis, historical stock prices, and more.
 
-## 权限说明
+## Permissions
 
-### 需要的权限
-- ✅ 网络访问：Yahoo Finance API (HTTPS)
-- ✅ 文件访问：本地 SQLite 数据库存储
-- ❌ 不需要管理员/root 权限
-- ❌ 不需要系统命令执行
-- ❌ 不需要访问用户隐私数据
+### Required Permissions
+- ✅ Network Access: Yahoo Finance API (HTTPS)
+- ✅ File Access: Local SQLite database storage
+- ❌ No Admin/Root Privileges Required
+- ❌ No System Command Execution
+- ❌ No Access to User Privacy Data
 
-### 数据流向
-- 股票数据：Yahoo Finance API → 本地处理 → 返回结果
-- 不上传任何用户数据
-- 不存储任何敏感信息
+### Data Flow
+- Stock Data: Yahoo Finance API → Local Processing → Return Results
+- No user data uploaded
+- No sensitive information stored
 
-## 使用场景
+## Use Cases
 
-### 1. 查询实时股价
+### 1. Real-time Stock Quotes
 ```
-查询 AAPL 的股价
-特斯拉现在多少钱
-NVDA 最新股价
-```
-
-### 2. 查询公司信息
-```
-苹果公司的市值是多少
-微软的市盈率
-谷歌的营收数据
+Query AAPL stock price
+How much is Tesla now
+NVDA latest stock price
 ```
 
-### 3. 历史数据
+### 2. Company Information
 ```
-显示 AAPL 过去 30 天股价
-特斯拉上个月走势
-```
-
-### 4. 财务指标
-```
-苹果的资产负债表
-腾讯的利润表
+What is Apple's market cap
+Microsoft's P/E ratio
+Google's revenue data
 ```
 
-### 5. 股息分红
+### 3. Historical Data
 ```
-AAPL 分红是多少
-哪些股票股息率高
+Show AAPL stock price for the past 30 days
+Tesla's trend last month
 ```
 
-## 使用示例
+### 4. Financial Metrics
+```
+Apple's balance sheet
+Tencent's income statement
+```
 
-### 基础用法
+### 5. Dividends
+```
+What is AAPL's dividend
+Which stocks have high dividend yields
+```
+
+## Usage Examples
+
+### Basic Usage
 ```javascript
 const YahooClaw = require('./src/yahoo-finance.js');
 
-// 获取实时股价
+// Get real-time stock quote
 const quote = await YahooClaw.getQuote('AAPL');
 console.log(quote);
 
-// 获取历史数据
+// Get historical data
 const history = await YahooClaw.getHistory('TSLA', '1mo');
 console.log(history);
 
-// 获取公司信息
+// Get company information
 const info = await YahooClaw.getCompanyInfo('MSFT');
 console.log(info);
 ```
 
-### OpenClaw 集成
+### OpenClaw Integration
 ```javascript
-// 在 OpenClaw agent 中调用
+// Call in OpenClaw agent
 const result = await tools.yahooclaw.getQuote({symbol: 'AAPL'});
 ```
 
-## API 参数说明
+## API Parameters
 
 ### getQuote(symbol)
-- **symbol**: 股票代码（如 AAPL, TSLA, 0700.HK）
-- **返回**: 实时股价、涨跌幅、成交量等
+- **symbol**: Stock code (e.g., AAPL, TSLA, 0700.HK)
+- **Returns**: Real-time stock price, change, volume, etc.
 
 ### getHistory(symbol, period)
-- **symbol**: 股票代码
-- **period**: 时间周期（1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max）
-- **返回**: 历史股价数据
+- **symbol**: Stock code
+- **period**: Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
+- **Returns**: Historical stock price data
 
 ### getCompanyInfo(symbol)
-- **symbol**: 股票代码
-- **返回**: 公司信息、市值、市盈率、市净率等
+- **symbol**: Stock code
+- **Returns**: Company information, market cap, P/E ratio, P/B ratio, etc.
 
 ### getDividends(symbol)
-- **symbol**: 股票代码
-- **返回**: 股息分红历史
+- **symbol**: Stock code
+- **Returns**: Dividend history
 
-## 环境变量
+## Environment Variables
 
 ```bash
-# Yahoo Finance API（可选，基础功能无需 API key）
+# Yahoo Finance API (Optional, basic features work without API key)
 YAHOO_FINANCE_API_KEY=your_api_key_here
 
-# 代理设置（如果需要）
+# Proxy Settings (if needed)
 HTTP_PROXY=http://proxy.example.com:8080
 HTTPS_PROXY=https://proxy.example.com:8080
 ```
 
-## 注意事项
+## Notes
 
-1. **数据延迟**：Yahoo Finance 实时数据可能有 15 分钟延迟
-2. **请求限制**：建议控制请求频率，避免被限流
-3. **港股/A 股**：支持港股（0700.HK）、A 股（600519.SS）等
-4. **错误处理**：网络问题或无效代码会返回错误信息
+1. **Data Delay**: Yahoo Finance real-time data may have 15-minute delay
+2. **Rate Limiting**: Control request frequency to avoid rate limits
+3. **HK/A-Shares**: Supports HK stocks (0700.HK), A-shares (600519.SS), etc.
+4. **Error Handling**: Network issues or invalid codes will return error messages
 
-## 故障排除
+## Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **获取数据失败**
-   - 检查网络连接
-   - 验证股票代码格式
-   - 查看 Yahoo Finance 服务状态
+1. **Failed to Get Data**
+   - Check network connection
+   - Verify stock code format
+   - Check Yahoo Finance service status
 
-2. **数据延迟**
-   - 这是正常现象，Yahoo Finance 实时数据有延迟
-   - 考虑使用付费 API 获取真正实时数据
+2. **Data Delay**
+   - This is normal, Yahoo Finance real-time data has delay
+   - Consider using paid API for truly real-time data
 
-3. **A 股/港股代码格式**
-   - A 股：600519.SS（茅台）
-   - 港股：0700.HK（腾讯）
-   - 美股：AAPL（苹果）
+3. **A-Share/HK Stock Code Format**
+   - A-Shares: 600519.SS (Moutai)
+   - HK Stocks: 0700.HK (Tencent)
+   - US Stocks: AAPL (Apple)
 
-## 相关资源
+## Resources
 
-- [Yahoo Finance API 文档](https://finance.yahoo.com/)
-- [yfinance Python 库](https://pypi.org/project/yfinance/)
-- [OpenClaw 文档](https://docs.openclaw.ai/)
+- [Yahoo Finance API Documentation](https://finance.yahoo.com/)
+- [yfinance Python Library](https://pypi.org/project/yfinance/)
+- [OpenClaw Documentation](https://docs.openclaw.ai/)
 
-## 更新日志
+## Changelog
 
 ### v0.1.0 (2026-03-09)
-- ✅ 初始版本发布
-- ✅ 实时股价查询
-- ✅ 历史数据查询
-- ✅ 公司信息查询
-- ✅ 股息分红查询
-- ✅ OpenClaw 集成
+- ✅ Initial release
+- ✅ Real-time stock quotes
+- ✅ Historical data queries
+- ✅ Company information queries
+- ✅ Dividend queries
+- ✅ OpenClaw integration
 
-## 许可证
+## License
 
 MIT License
 
-## 作者
+## Author
 
 PocketAI for Leo - OpenClaw Community
