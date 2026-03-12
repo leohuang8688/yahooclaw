@@ -8,10 +8,6 @@
   "dependencies": {
     "yahoo-finance2": "^2.11.3",
     "dotenv": "^17.3.1"
-  },
-  "audit": {
-    "run": "npm audit",
-    "fix": "npm audit fix"
   }
 }
 ```
@@ -29,9 +25,7 @@
 ```bash
 # Required: None
 # Optional:
-YAHOO_API_KEY=your_key_here
 ALPHA_VANTAGE_API_KEY=your_key_here
-DATABASE_PATH=./clawmem.db
 ```
 
 ### 4. File Permissions
@@ -47,7 +41,6 @@ chmod 600 .env  # If exists
 - **HTTPS Only:** All external calls use HTTPS
 - **Domains:**
   - query1.finance.yahoo.com
-  - api.alphavantage.co
   - www.alphavantage.co
 
 ### 6. Data Privacy
@@ -69,14 +62,8 @@ npm audit
 
 # Check for known vulnerabilities
 npm audit --audit-level=high
-
-# Update dependencies
-npm update
-
-# Verify package integrity
-npm ci
 ```
 
 ## Contact
 
-For security issues, please report to: [Your Contact]
+For security issues, please report via GitHub Issues.

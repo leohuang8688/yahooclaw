@@ -113,15 +113,12 @@ const result = await tools.yahooclaw.getQuote({symbol: 'AAPL'});
 ## Environment Variables
 
 ```bash
-# Optional: Yahoo Finance API (basic features work without API key)
-YAHOO_FINANCE_API_KEY=your_api_key_here
-
 # Optional: Alpha Vantage API (backup data source)
 # Get from: https://www.alphavantage.co/support/#api-key
 ALPHA_VANTAGE_API_KEY=your_api_key_here
 
 # Optional: Database path for caching
-DATABASE_PATH=./clawmem.db
+DATABASE_PATH=./yahooclaw.db
 ```
 
 ## Notes
