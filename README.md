@@ -23,9 +23,9 @@
 
 ### Permissions Required
 - **Network:** Yahoo Finance API (HTTPS only)
-- **Storage:** Optional local caching
 - **No Admin:** No root/admin privileges needed
 - **No Shell:** No system command execution
+- **No Database:** Uses in-memory caching only
 
 ---
 

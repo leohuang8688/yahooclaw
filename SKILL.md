@@ -12,7 +12,7 @@ description: Yahoo Finance API integration for OpenClaw. Use when users ask for 
 - ✅ Rate limiting implemented
 - ✅ Open source and auditable
 - ⚠️ API keys must be set via environment variables
-- ⚠️ Local SQLite caching for performance (optional)
+- ℹ️ Uses in-memory caching for performance (no database)
 
 ## Overview
 

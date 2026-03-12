@@ -45,7 +45,7 @@ chmod 600 .env  # If exists
 
 ### 6. Data Privacy
 - **No Data Collection:** Does not collect user data
-- **No Persistence:** No long-term data storage
+- **No Persistence:** Uses in-memory caching only (no database)
 - **No Tracking:** No analytics or tracking
 - **Open Source:** All code is auditable
 
