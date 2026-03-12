@@ -1,17 +1,17 @@
 {
   "name": "yahooclaw",
-  "version": "0.0.3",
-  "description": "Yahoo Finance API integration for OpenClaw - Real-time stock quotes, financial data, and market analysis",
+  "version": "1.0.0",
+  "description": "Yahoo Finance API integration for OpenClaw. Production-ready skill with real-time quotes, historical data, and market analysis.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "dev": "node --watch src/yahoo-finance.js",
-    "lint": "eslint src/"
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/*.test.js"
   },
   "keywords": [
-    "yahoo-finance",
     "openclaw",
+    "yahoo-finance",
     "stock",
     "finance",
     "trading",
@@ -29,9 +29,7 @@
     "yahoo-finance2": "^2.11.3"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "eslint": "^8.55.0",
-    "jest": "^29.7.0"
+    "@types/node": "^20.10.0"
   },
   "engines": {
     "node": ">=20.0.0"

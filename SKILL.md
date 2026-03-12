@@ -7,13 +7,12 @@ description: Yahoo Finance API integration for OpenClaw. Use when users ask for 
 
 ## 🔒 Security
 
-- ✅ No external API keys stored in code
-- ✅ No sensitive data collection
 - ✅ No shell command execution
 - ✅ All API calls use HTTPS
 - ✅ Rate limiting implemented
-- ✅ No user data persistence
 - ✅ Open source and auditable
+- ⚠️ API keys must be set via environment variables
+- ⚠️ Local SQLite caching for performance (optional)
 
 ## Overview
 
@@ -23,7 +22,7 @@ YahooClaw is an OpenClaw skill that integrates Yahoo Finance API, providing real
 
 ### Required Permissions
 - ✅ Network Access: Yahoo Finance API (HTTPS)
-- ✅ File Access: Local SQLite database storage
+- ✅ File Access: Local SQLite database storage (optional caching)
 - ❌ No Admin/Root Privileges Required
 - ❌ No System Command Execution
 - ❌ No Access to User Privacy Data
@@ -31,7 +30,7 @@ YahooClaw is an OpenClaw skill that integrates Yahoo Finance API, providing real
 ### Data Flow
 - Stock Data: Yahoo Finance API → Local Processing → Return Results
 - No user data uploaded
-- No sensitive information stored
+- Temporary caching only (optional)
 
 ## Use Cases
 
@@ -114,12 +113,15 @@ const result = await tools.yahooclaw.getQuote({symbol: 'AAPL'});
 ## Environment Variables
 
 ```bash
-# Yahoo Finance API (Optional, basic features work without API key)
+# Optional: Yahoo Finance API (basic features work without API key)
 YAHOO_FINANCE_API_KEY=your_api_key_here
 
-# Proxy Settings (if needed)
-HTTP_PROXY=http://proxy.example.com:8080
-HTTPS_PROXY=https://proxy.example.com:8080
+# Optional: Alpha Vantage API (backup data source)
+# Get from: https://www.alphavantage.co/support/#api-key
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+
+# Optional: Database path for caching
+DATABASE_PATH=./clawmem.db
 ```
 
 ## Notes
@@ -154,6 +156,13 @@ HTTPS_PROXY=https://proxy.example.com:8080
 - [OpenClaw Documentation](https://docs.openclaw.ai/)
 
 ## Changelog
+
+### v1.0.0 (2026-03-12)
+- ✅ Security improvements
+- ✅ Removed all test/debug files
+- ✅ Fixed unicode characters
+- ✅ Updated documentation
+- ✅ Production ready
 
 ### v0.1.0 (2026-03-09)
 - ✅ Initial release
