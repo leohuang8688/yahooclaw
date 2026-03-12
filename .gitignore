@@ -2,10 +2,15 @@
 node_modules/
 package-lock.json
 
-# Environment variables
+# Environment variables (SENSITIVE)
 .env
 .env.local
 .env.*.local
+
+# Database files (SENSITIVE)
+*.db
+*.db-wal
+*.db-shm
 
 # Build output
 dist/

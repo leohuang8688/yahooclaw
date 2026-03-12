@@ -10,6 +10,40 @@
 
 ---
 
+## 🔒 Security
+
+### Security Features
+- ✅ No external API keys stored in code
+- ✅ No sensitive data collection
+- ✅ No shell command execution
+- ✅ All API calls use HTTPS
+- ✅ Rate limiting implemented
+- ✅ No user data persistence
+- ✅ Open source and auditable
+
+### Permissions Required
+- **Network:** Yahoo Finance API (HTTPS only)
+- **Storage:** Local SQLite database
+- **No Admin:** No root/admin privileges needed
+- **No Shell:** No system command execution
+
+### Data Flow
+```
+User Query → YahooClaw → Yahoo Finance API (HTTPS)
+                ↓
+         Local Processing
+                ↓
+         Return Result (No data stored)
+```
+
+### Security Best Practices
+1. **API Keys:** Store in environment variables, never in code
+2. **Rate Limiting:** Built-in rate limiting to prevent abuse
+3. **Input Validation:** Stock symbol format validation
+4. **Error Handling:** Graceful failure without leaking information
+
+---
+
 ## 📖 Introduction
 
 **YahooClaw v0.0.3** is a production-ready Yahoo Finance API integration skill for OpenClaw, featuring:

@@ -5,9 +5,33 @@ description: Yahoo Finance API integration for OpenClaw. Use when users ask for 
 
 # YahooClaw - Yahoo Finance API Integration
 
+## 🔒 Security
+
+- ✅ No external API keys stored in code
+- ✅ No sensitive data collection
+- ✅ No shell command execution
+- ✅ All API calls use HTTPS
+- ✅ Rate limiting implemented
+- ✅ No user data persistence
+- ✅ Open source and auditable
+
 ## 功能说明
 
 yahooclaw 是一个集成 Yahoo Finance API 的 OpenClaw 技能，提供实时股票数据查询、财务分析、历史股价等功能。
+
+## 权限说明
+
+### 需要的权限
+- ✅ 网络访问：Yahoo Finance API (HTTPS)
+- ✅ 文件访问：本地 SQLite 数据库存储
+- ❌ 不需要管理员/root 权限
+- ❌ 不需要系统命令执行
+- ❌ 不需要访问用户隐私数据
+
+### 数据流向
+- 股票数据：Yahoo Finance API → 本地处理 → 返回结果
+- 不上传任何用户数据
+- 不存储任何敏感信息
 
 ## 使用场景
 
